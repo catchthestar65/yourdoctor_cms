@@ -1,0 +1,449 @@
+/* yd-supervisor: 監修医師ページ専用スタイル
+ *
+ * 親サイト your-doctor.jp 準拠の配色・タイポを踏襲。
+ *   - 背景:    #F5F4F0
+ *   - テキスト: #61564F
+ *   - アクセント: #c87c6b
+ *   - 明朝体:   "Shippori Mincho B1"
+ */
+
+/* ===== 共通 ===== */
+.yd-doctor-single-wrap,
+.yd-doctors-archive-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+  color: #61564F;
+}
+
+.yd-doctor-single-wrap a,
+.yd-doctors-archive-wrap a {
+  color: #61564F;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.yd-doctor-single-wrap a:hover,
+.yd-doctors-archive-wrap a:hover {
+  opacity: 0.7;
+}
+
+/* ===== シングル：プロフィール ===== */
+.yd-doctor-profile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: center;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #DDDDDD;
+  margin-bottom: 32px;
+}
+
+.yd-doctor-profile__photo {
+  flex: 0 0 auto;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #EFEAE3;
+}
+
+.yd-doctor-profile__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.yd-doctor-profile__name-block {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.yd-doctor-profile__name {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  color: #61564F;
+}
+
+.yd-doctor-profile__honorific {
+  font-size: 18px;
+  margin-right: 6px;
+  color: #c87c6b;
+  font-weight: 600;
+}
+
+.yd-doctor-profile__job {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  color: #61564F;
+  letter-spacing: 0.5px;
+}
+
+.yd-doctor-profile__clinic {
+  font-size: 13px;
+  margin: 0;
+  color: #807468;
+}
+
+.yd-doctor-profile__clinic a {
+  text-decoration: underline;
+}
+
+/* 抜粋・本文 */
+.yd-doctor-profile__excerpt,
+.yd-doctor-profile__content {
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 0 0 32px;
+}
+
+.yd-doctor-profile__excerpt p:first-child {
+  margin-top: 0;
+}
+
+/* 詳細リスト */
+.yd-doctor-profile__details {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 16px 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 0 0 40px;
+}
+
+.yd-doctor-profile__details dt {
+  font-weight: 600;
+  color: #807468;
+  border-bottom: 1px solid #EDE8E1;
+  padding-bottom: 8px;
+  margin: 0;
+}
+
+.yd-doctor-profile__details dd {
+  margin: 0;
+  border-bottom: 1px solid #EDE8E1;
+  padding-bottom: 8px;
+}
+
+.yd-doctor-profile__details-rich :is(p, ul, ol) {
+  margin: 0 0 8px;
+}
+
+.yd-doctor-profile__details-rich :last-child {
+  margin-bottom: 0;
+}
+
+/* コメント */
+.yd-doctor-profile__comment {
+  background-color: #FFFFFF;
+  border-left: 4px solid #c87c6b;
+  padding: 20px 24px;
+  margin: 0 0 40px;
+  border-radius: 4px;
+}
+
+.yd-doctor-profile__comment-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #c87c6b;
+  letter-spacing: 1px;
+}
+
+.yd-doctor-profile__comment p {
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 0;
+}
+
+/* sameAs */
+.yd-doctor-profile__sameas {
+  margin: 0 0 40px;
+}
+
+.yd-doctor-profile__sameas-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.yd-doctor-profile__sameas ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.yd-doctor-profile__sameas li {
+  margin: 0 0 6px;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.yd-doctor-profile__sameas li::before {
+  content: "→ ";
+  color: #c87c6b;
+  margin-right: 4px;
+}
+
+.yd-doctor-profile__sameas a {
+  text-decoration: underline;
+}
+
+/* ===== シングル：監修記事一覧 ===== */
+.yd-doctor-reviewed-posts {
+  margin: 56px 0 0;
+}
+
+.yd-doctor-reviewed-posts__title {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #c87c6b;
+  color: #61564F;
+}
+
+.yd-doctor-reviewed-posts__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.yd-doctor-reviewed-posts__item {
+  margin: 0;
+}
+
+.yd-doctor-reviewed-posts__link {
+  display: block;
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.yd-doctor-reviewed-posts__link:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.yd-doctor-reviewed-posts__thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.yd-doctor-reviewed-posts__post-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+  padding: 12px 16px 16px;
+  color: #61564F;
+}
+
+.yd-doctor-reviewed-posts__pagination {
+  margin: 32px 0 0;
+  text-align: center;
+}
+
+.yd-doctor-reviewed-posts__pagination .page-numbers {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0 2px;
+  background-color: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.yd-doctor-reviewed-posts__pagination .page-numbers.current {
+  background-color: #c87c6b;
+  color: #FFFFFF;
+  border-color: #c87c6b;
+}
+
+/* ===== アーカイブ ===== */
+.yd-doctors-archive__header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.yd-doctors-archive__title {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+  color: #61564F;
+}
+
+.yd-doctors-archive__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.yd-doctor-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 6px;
+  border: 1px solid #EDE8E1;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.yd-doctor-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  opacity: 1;
+}
+
+.yd-doctor-card__photo {
+  flex: 0 0 80px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #EFEAE3;
+}
+
+.yd-doctor-card__photo--placeholder {
+  /* 顔写真未設定時のプレースホルダー */
+}
+
+.yd-doctor-card__photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.yd-doctor-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.yd-doctor-card__name {
+  font-family: "Shippori Mincho B1", "Noto Serif JP", serif;
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  line-height: 1.4;
+  color: #61564F;
+}
+
+.yd-doctor-card__honorific {
+  font-size: 13px;
+  color: #c87c6b;
+  margin-right: 4px;
+  font-weight: 600;
+}
+
+.yd-doctor-card__job {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 2px;
+  color: #61564F;
+}
+
+.yd-doctor-card__clinic {
+  font-size: 11px;
+  margin: 0;
+  color: #807468;
+}
+
+.yd-doctors-archive__pagination {
+  margin: 40px 0 0;
+  text-align: center;
+}
+
+.yd-doctors-archive__pagination .page-numbers {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 0 2px;
+  background-color: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.yd-doctors-archive__pagination .page-numbers.current {
+  background-color: #c87c6b;
+  color: #FFFFFF;
+  border-color: #c87c6b;
+}
+
+.yd-doctors-archive__empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #807468;
+  font-size: 14px;
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 767px) {
+  .yd-doctor-single-wrap,
+  .yd-doctors-archive-wrap {
+    padding: 24px 16px 60px;
+  }
+
+  .yd-doctor-profile {
+    gap: 20px;
+  }
+
+  .yd-doctor-profile__photo {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+  }
+
+  .yd-doctor-profile__name-block {
+    text-align: center;
+    flex: 1 1 100%;
+  }
+
+  .yd-doctor-profile__name {
+    font-size: 22px;
+  }
+
+  .yd-doctor-profile__details {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+
+  .yd-doctor-profile__details dt {
+    border-bottom: none;
+    padding-bottom: 4px;
+    font-size: 13px;
+  }
+
+  .yd-doctor-profile__details dd {
+    padding-bottom: 16px;
+    margin-bottom: 4px;
+  }
+
+  .yd-doctor-reviewed-posts__list {
+    grid-template-columns: 1fr;
+  }
+
+  .yd-doctors-archive__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yd-doctors-archive__title {
+    font-size: 24px;
+  }
+}

@@ -159,3 +159,87 @@ GET https://your-doctor.jp/media/wp-json/wp/v2/posts/{記事ID}
 - 監修者カードの記事下表示（→ Phase 6）
 - 監修者シングルページの「監修記事一覧」（→ Phase 3）
 - 構造化データへの reviewedBy 出力（→ Phase 5）
+
+---
+
+## Phase 3：監修者ページのテンプレート
+
+### 事前準備
+
+- Phase 1, 2 が動作確認済み
+- ダミー医師が 1 件以上公開状態（顔写真・経歴・所属クリニック等を入力推奨）
+- そのダミー医師を監修者に設定した記事が **1 件以上 公開状態**
+
+### デプロイ手順
+
+main マージ → 自動デプロイ。差分は以下：
+- `plugin/yd-supervisor/yd-supervisor.php`（バージョン 0.3.0、template-loader 読込）
+- `plugin/yd-supervisor/inc/class-template-loader.php`（新規）
+- `plugin/yd-supervisor/inc/helpers.php`（`yd_get_doctor_reviewed_posts()` 追加）
+- `plugin/yd-supervisor/templates/single-yd_doctor.php`（新規）
+- `plugin/yd-supervisor/templates/archive-yd_doctor.php`（新規）
+- `plugin/yd-supervisor/templates/partials/doctor-profile.php`（新規）
+- `plugin/yd-supervisor/templates/partials/doctor-card.php`（新規）
+- `plugin/yd-supervisor/templates/partials/reviewed-posts.php`（新規）
+- `plugin/yd-supervisor/assets/css/doctor-pages.css`（新規）
+
+### 重要：パーマリンク再生成
+
+Phase 1 でも CPT は登録済みですが、念のため Phase 3 デプロイ後に：
+
+1. WP管理画面 → **設定 → パーマリンク設定**
+2. 何も変更せず **「変更を保存」** ボタンを押す（rewrite rules を再生成）
+
+### 検証項目
+
+#### A. 監修者シングルページ
+
+`https://your-doctor.jp/media/doctor/{slug}/`（{slug} は登録した医師の URL スラッグ）
+
+- [ ] 404 にならず、ページが表示される
+- [ ] 顔写真（円形 160px）が表示される
+- [ ] 「Dr. 田中太郎」のように敬称＋氏名が表示される
+- [ ] 役職・所属クリニック名が表示される（クリニック名は外部リンク化）
+- [ ] 経歴・保有資格・出身大学・経験年数・免許取得年が定義リストで表示される
+- [ ] 監修者コメントがコーラルカラーの枠で表示される
+- [ ] sameAs URL（リピーター登録分）が「関連リンク」として外部リンク表示
+- [ ] **「○○医師が監修した記事」セクション**が表示される
+- [ ] その医師を監修者に設定した記事カードが並ぶ
+- [ ] 記事カードクリックで該当記事に遷移できる
+- [ ] レスポンシブ：スマホ表示でレイアウトが崩れない（顔写真センター寄せ）
+
+#### B. 監修者一覧アーカイブ
+
+`https://your-doctor.jp/media/doctor/`
+
+- [ ] 404 にならず、「監修医師一覧」見出しが表示される
+- [ ] 登録済み医師のカードが 2 カラムグリッドで並ぶ
+- [ ] 各カードに 顔写真（円形 80px）/ 敬称+氏名 / 役職 / クリニック名 が表示
+- [ ] カードクリックで該当医師のシングルページに遷移
+- [ ] 医師が 13 件以上いる場合、ページネーションが表示される
+- [ ] レスポンシブ：スマホで 1 カラムになる
+
+#### C. CSS 読み込み
+
+ブラウザの開発者ツール → Network タブで以下が読み込まれていることを確認：
+
+- [ ] `/wp-content/plugins/yd-supervisor/assets/css/doctor-pages.css?ver=0.3.0`
+- [ ] yd_doctor 関連ページ**以外**（例：通常の記事ページ、ホーム）では doctor-pages.css は **読み込まれない**
+
+#### D. 既存ページへの副作用
+
+- [ ] トップページ・既存記事ページが従来通り表示される
+- [ ] 子テーマヘッダー・フッターが正しく表示される
+
+### 想定される表示崩れと対応
+
+- **SWELL の親テーマレイアウトとマージン重複**：余白の崩れがあれば共有してください、CSS で調整します
+- **顔写真未設定**：プレースホルダー（薄ベージュの円）が表示されます
+- **記事監修なし状態**：「○○医師が監修した記事」セクションごと非表示
+
+### Phase 3 で**確認しないもの**（Phase 4 以降）
+
+- 記事ターゲットKW入力欄（→ Phase 4）
+- 構造化データ JSON-LD（→ Phase 5）
+- 記事ページに監修者カードが表示される機能（→ Phase 6）
+- ヘッダーナビへの「Doctors」リンク（→ Phase 6）
