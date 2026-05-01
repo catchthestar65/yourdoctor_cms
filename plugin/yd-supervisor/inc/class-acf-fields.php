@@ -38,6 +38,7 @@ class YD_ACF_Fields {
 			'label_placement'       => 'top',
 			'instruction_placement' => 'label',
 			'active'                => true,
+			'show_in_rest'          => 1,
 			'location'              => [
 				[
 					[
@@ -177,6 +178,7 @@ class YD_ACF_Fields {
 			'label_placement'       => 'top',
 			'instruction_placement' => 'label',
 			'active'                => true,
+			'show_in_rest'          => 1,
 			'location'              => [
 				[
 					[
@@ -232,6 +234,7 @@ class YD_ACF_Fields {
 			'label_placement'       => 'top',
 			'instruction_placement' => 'label',
 			'active'                => true,
+			'show_in_rest'          => 1,
 			'location'              => [
 				[
 					[
