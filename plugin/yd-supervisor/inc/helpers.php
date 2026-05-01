@@ -2,8 +2,10 @@
 /**
  * テンプレートタグ・ヘルパー関数。
  *
- * 設計書 3.4 を参照。Phase 2 では監修者リレーション取得関数のみ実装。
- * シングルテンプレート用ヘルパー（Phase 3）、構造化データ用（Phase 5）は順次追加。
+ * 設計書 3.4 を参照。
+ * Phase 2: yd_get_post_supervisors / yd_should_disable_medical_schema
+ * Phase 3: yd_get_doctor_reviewed_posts
+ * 構造化データ用（Phase 5）、記事側カード描画（Phase 6）は順次追加。
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -39,6 +41,48 @@ function yd_get_post_supervisors( $post_id = null ) {
 	}
 
 	return $supervisors;
+}
+
+/**
+ * 監修医師が監修した記事一覧を取得する。
+ *
+ * `yd_supervisors`（ACF post_object multiple）に対象 doctor_id が含まれる
+ * post を検索する。ACF はシリアライズ配列で保存しており、保存値の型
+ * （int / string）に揺れがあるため LIKE クエリ 2 種を OR で発行する。
+ *
+ * 設計書 3.3.3 を参照。
+ *
+ * @param int   $doctor_id
+ * @param array $args 追加 / 上書き WP_Query 引数。
+ * @return WP_Query
+ */
+function yd_get_doctor_reviewed_posts( $doctor_id, $args = [] ) {
+	$doctor_id = (int) $doctor_id;
+	if ( ! $doctor_id ) {
+		return new WP_Query();
+	}
+
+	$defaults = [
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => 12,
+		'meta_query'     => [
+			'relation' => 'OR',
+			[
+				'key'     => 'yd_supervisors',
+				'value'   => '"' . $doctor_id . '"',
+				'compare' => 'LIKE',
+			],
+			[
+				'key'     => 'yd_supervisors',
+				'value'   => 'i:' . $doctor_id . ';',
+				'compare' => 'LIKE',
+			],
+		],
+	];
+
+	$args = wp_parse_args( $args, $defaults );
+	return new WP_Query( $args );
 }
 
 /**
