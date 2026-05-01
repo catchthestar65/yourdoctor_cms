@@ -187,13 +187,13 @@ curl -X POST https://your-doctor.jp/media/wp-json/wp/v2/doctors/141 \
 
 ## 4. 記事（posts）API
 
-### 4.1 記事の取得（meta 含む）
+### 4.1 記事の取得
 
 ```bash
 curl https://your-doctor.jp/media/wp-json/wp/v2/posts/123
 ```
 
-レスポンス内 `meta` に独自メタが入る：
+レスポンス（独自フィールドの位置に注意）：
 ```json
 {
   "id": 123,
@@ -201,15 +201,23 @@ curl https://your-doctor.jp/media/wp-json/wp/v2/posts/123
   "content": { ... },
   "status": "publish",
   "meta": {
-    "yd_target_keyword": "AGA 初期症状",
-    "yd_supervisors": [141, 142]
-  }
+    "yd_target_keyword": "AGA 初期症状"
+  },
+  "yd_supervisors": [141, 142]
 }
 ```
 
+| フィールド | 位置 | 仕組み |
+|---|---|---|
+| `yd_target_keyword` | `meta.yd_target_keyword` | `register_post_meta` 経由 |
+| `yd_supervisors` | **トップレベル** `yd_supervisors` | `register_rest_field` 経由 |
+
+> `yd_supervisors` は ACF post_object 由来でシリアライズ配列保存のため、
+> `meta` 配下ではなくトップレベルの独自フィールドとして提供します。
+
 ### 4.2 記事作成 / 監修者アサイン同時実施
 
-外部システムから記事入稿時、監修者・ターゲットKW を同時に指定できる：
+外部システムから記事入稿時、監修者・ターゲットKW を同時指定：
 
 ```bash
 curl -X POST https://your-doctor.jp/media/wp-json/wp/v2/posts \
@@ -221,42 +229,40 @@ curl -X POST https://your-doctor.jp/media/wp-json/wp/v2/posts \
     "status": "draft",
     "categories": [3],
     "meta": {
-      "yd_target_keyword": "AGA 初期症状",
-      "yd_supervisors": [141, 142]
-    }
+      "yd_target_keyword": "AGA 初期症状"
+    },
+    "yd_supervisors": [141, 142]
   }'
 ```
 
 成功時は新規記事の JSON が返る。
 
-### 4.3 既存記事への監修者追加
+### 4.3 既存記事への監修者更新
 
 ```bash
 curl -X POST https://your-doctor.jp/media/wp-json/wp/v2/posts/123 \
   -u "{username}:{app_password}" \
   -H "Content-Type: application/json" \
   -d '{
-    "meta": {
-      "yd_supervisors": [141, 142]
-    }
+    "yd_supervisors": [141, 142]
   }'
 ```
 
 `yd_supervisors` 配列を**置き換える**（追加ではない）。既存値を保持したい
 場合はクライアント側で merge 処理を行う。
 
-### 4.4 メタフィールドのバリデーション
+### 4.4 バリデーション
 
-- `yd_target_keyword`：`sanitize_text_field` でサニタイズ。最大長 200 文字（ACF UI 上の制限。REST 経由ではバイト数制限のみ）
-- `yd_supervisors`：配列として受け取り、各要素を `absint` で整数化、存在チェック（`yd_doctor` のみ通過）、重複除去。**既存しない ID や非 yd_doctor は黙って除外される**
+- `meta.yd_target_keyword`：`sanitize_text_field` でサニタイズ。ACF UI 上は最大 200 文字
+- `yd_supervisors`：配列として受け取り、各要素を `absint` で整数化、`yd_doctor` 投稿の存在チェック、重複除去。**存在しない ID や非 yd_doctor は黙って除外**
 
 ### 4.5 監修者を削除（空にする）
 
 ```json
-{ "meta": { "yd_supervisors": [] } }
+{ "yd_supervisors": [] }
 ```
 
-空配列を送れば監修者ゼロになる。
+空配列で監修者ゼロになる。`null` または空文字を送っても同等に扱われる。
 
 ---
 
@@ -282,8 +288,8 @@ payload = {
     "status": "draft",
     "meta": {
         "yd_target_keyword": "AGA 初期症状",
-        "yd_supervisors": [doctors["田中 太郎"], doctors["山田 花子"]],
     },
+    "yd_supervisors": [doctors["田中 太郎"], doctors["山田 花子"]],
 }
 res = requests.post(f"{BASE}/posts", auth=AUTH, json=payload)
 print(res.status_code, res.json()["id"])
@@ -308,8 +314,8 @@ async function createPost() {
       status: 'draft',
       meta: {
         yd_target_keyword: 'AGA 初期症状',
-        yd_supervisors: [141, 142],
       },
+      yd_supervisors: [141, 142],
     }),
   });
   const json = await res.json();
