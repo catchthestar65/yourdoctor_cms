@@ -35,6 +35,12 @@
         <li><a href="https://your-doctor.jp/guidebook/">医療ガイドブック</a></li>
         <li><a href="https://your-doctor.jp/medical-column/">医療コラム</a></li>
         <li><a href="https://your-doctor.jp/interview/">ドクターの素顔</a></li>
+        <?php
+        $yd_doctors_url = function_exists( 'get_post_type_archive_link' ) ? get_post_type_archive_link( 'yd_doctor' ) : '';
+        if ( $yd_doctors_url ) :
+        ?>
+        <li><a href="<?php echo esc_url( $yd_doctors_url ); ?>">監修医師</a></li>
+        <?php endif; ?>
         <li class="yd-has-dropdown">
           <span>病院・医師を探す</span>
           <ul class="yd-dropdown">

@@ -7,7 +7,7 @@
  * Phase 3: yd_get_doctor_reviewed_posts
  * Phase 5: yd_get_doctor_person_schema / yd_get_reviewed_by_schema
  *          / yd_get_doctor_physician_schema
- * 記事側カード描画（Phase 6）は順次追加。
+ * Phase 6: yd_render_supervisor_cards
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -260,4 +260,76 @@ function yd_get_doctor_physician_schema( $doctor_id = null ) {
 	$person['@type'] = 'Physician';
 	$person['@id']   = get_permalink( $doctor_id ) . '#physician';
 	return $person;
+}
+
+/**
+ * 記事下に表示する監修医師カード群の HTML を返す。
+ *
+ * 監修者ゼロの場合は空文字列を返す。
+ *
+ * @param int|null $post_id 対象記事ID。
+ * @return string
+ */
+function yd_render_supervisor_cards( $post_id = null ) {
+	$post_id     = $post_id ? (int) $post_id : (int) get_the_ID();
+	$supervisors = yd_get_post_supervisors( $post_id );
+	if ( empty( $supervisors ) ) {
+		return '';
+	}
+
+	ob_start();
+	?>
+	<aside class="yd-article-supervisors" aria-labelledby="yd-article-supervisors-heading-<?php echo esc_attr( (string) $post_id ); ?>">
+		<h2 id="yd-article-supervisors-heading-<?php echo esc_attr( (string) $post_id ); ?>" class="yd-article-supervisors__heading">
+			<?php esc_html_e( 'この記事の監修医師', 'yd-supervisor' ); ?>
+		</h2>
+		<div class="yd-article-supervisors__list">
+			<?php
+			foreach ( $supervisors as $doctor ) :
+				$doctor_id = (int) $doctor->ID;
+				$get       = function ( $name ) use ( $doctor_id ) {
+					if ( function_exists( 'get_field' ) ) {
+						return get_field( $name, $doctor_id );
+					}
+					return get_post_meta( $doctor_id, $name, true );
+				};
+
+				$honorific = (string) $get( 'yd_honorific_prefix' );
+				$job_title = (string) $get( 'yd_job_title' );
+				$clinic    = (string) $get( 'yd_clinic_name' );
+				$image_url = get_the_post_thumbnail_url( $doctor_id, 'medium' );
+				$name      = get_the_title( $doctor_id );
+				$permalink = get_permalink( $doctor_id );
+				?>
+				<a class="yd-article-supervisors__card" href="<?php echo esc_url( $permalink ); ?>">
+					<?php if ( $image_url ) : ?>
+						<div class="yd-article-supervisors__photo">
+							<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $name ); ?>" loading="lazy" />
+						</div>
+					<?php endif; ?>
+
+					<div class="yd-article-supervisors__body">
+						<div class="yd-article-supervisors__name">
+							<?php if ( $honorific ) : ?>
+								<span class="yd-article-supervisors__honorific"><?php echo esc_html( $honorific ); ?></span>
+							<?php endif; ?>
+							<span class="yd-article-supervisors__realname"><?php echo esc_html( $name ); ?></span>
+						</div>
+
+						<?php if ( $job_title ) : ?>
+							<div class="yd-article-supervisors__job"><?php echo esc_html( $job_title ); ?></div>
+						<?php endif; ?>
+						<?php if ( $clinic ) : ?>
+							<div class="yd-article-supervisors__clinic"><?php echo esc_html( $clinic ); ?></div>
+						<?php endif; ?>
+						<div class="yd-article-supervisors__more">
+							<?php esc_html_e( 'プロフィールを見る →', 'yd-supervisor' ); ?>
+						</div>
+					</div>
+				</a>
+			<?php endforeach; ?>
+		</div>
+	</aside>
+	<?php
+	return (string) ob_get_clean();
 }
