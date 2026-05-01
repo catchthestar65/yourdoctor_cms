@@ -1,0 +1,28 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# WordPress 関連（このリポジトリには WP コア・wp-config を含めない）
+wp-config.php
+.htaccess
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+
+# Build artifacts
+node_modules/
+*.log
+
+# ACF JSON cache（PHPで定義するため不要）
+acf-json/
+
+# 機密ファイル（誤コミット防止）
+*.pem
+*.key
+.env
+.env.*
+!.env.example
+agacolumn-server.txt

@@ -1,0 +1,86 @@
+# GitHub Actions による FTP 自動デプロイ
+#
+# トリガー：
+#   - main ブランチへの push（feature/* → main マージ含む）
+#   - GitHub Actions UI からの手動実行（workflow_dispatch）
+#
+# 必要な GitHub Secrets（Settings → Secrets and variables → Actions）：
+#   FTP_SERVER         FTPサーバーホスト（例: ftp.your-doctor.jp）
+#   FTP_USERNAME       FTPユーザー名
+#   FTP_PASSWORD       FTPパスワード
+#
+# オプション（Repository Variables, vars 経由で上書き可）：
+#   FTP_PROTOCOL       'ftp' | 'ftps' | 'sftp'  （デフォルト: ftp）
+#   FTP_PORT           整数  （デフォルト: 21 ※protocol 連動）
+#   FTP_BASE_DIR       本番 WP の wp-content までのパス
+#                      例: /media/wp-content/  （デフォルト: /media/wp-content/）
+#                      ※ FTPルートが既に /media/ 直下なら /wp-content/ に変更
+#
+# サーバ側ディレクトリ仕様：
+#   - プラグイン: ${FTP_BASE_DIR}plugins/yd-supervisor/
+#   - 子テーマ:   ${FTP_BASE_DIR}themes/swell_child_custmon/
+#
+# 安全策：
+#   - dry-run ジョブ（FTP接続せずにファイルリストのみ表示）を先に実行
+#   - 本番デプロイは dry-run 成功後にのみ実行
+
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy-plugin:
+    name: Deploy yd-supervisor plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTP deploy plugin
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          port: ${{ vars.FTP_PORT || '21' }}
+          local-dir: ./plugin/yd-supervisor/
+          server-dir: ${{ vars.FTP_BASE_DIR || '/media/wp-content/' }}plugins/yd-supervisor/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.gitkeep
+            **/.DS_Store
+            **/Thumbs.db
+
+  deploy-theme:
+    name: Deploy swell_child_custmon theme
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTP deploy theme
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
+          port: ${{ vars.FTP_PORT || '21' }}
+          local-dir: ./theme/swell_child_custmon/
+          server-dir: ${{ vars.FTP_BASE_DIR || '/media/wp-content/' }}themes/swell_child_custmon/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.gitkeep
+            **/.DS_Store
+            **/Thumbs.db
