@@ -1,9 +1,13 @@
 <?php
 /**
- * register_post_meta() でカスタムメタを公開する。
+ * register_post_meta() でカスタムメタを REST API に公開する。
  *
- * 設計書 §4 を参照。`post` の `yd_target_keyword` を REST 経由で
- * 読み書き可能にする（社内SEO管理用、構造化データには出さない）。
+ * 設計書 §4: `post` の `yd_target_keyword` を REST 経由で読み書きする。
+ *
+ * `yd_supervisors`（ACF post_object multiple）の REST 公開は
+ * `register_post_meta` だと ACF が保存するシリアライズ配列との型整合で
+ * 抜けることがあるため、`inc/class-rest-fields.php` の
+ * register_rest_field 経由でトップレベル `yd_supervisors` として扱う。
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
