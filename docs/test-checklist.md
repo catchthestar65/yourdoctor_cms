@@ -319,3 +319,105 @@ curl -s "https://your-doctor.jp/media/{記事URL}/" | grep -oE "yd_target_keywor
 
 - 構造化データ JSON-LD の出力（→ Phase 5）
 - 記事ページへの監修者カード表示（→ Phase 6）
+
+---
+
+## Phase 5：構造化データ実装
+
+### 事前準備
+
+- Phase 1〜4 が動作確認済み
+- AIOSEO が有効化されていること（重要：AIOSEO 4.x の `aioseo_schema_output` フィルターを利用）
+- 監修医師を**設定済み**の記事（post）が 1 件以上、公開状態
+- 顔写真・経歴・所属クリニック・専門分野を入力した医師が望ましい
+
+### デプロイ手順
+
+main マージ → 自動デプロイ。差分は以下：
+- `plugin/yd-supervisor/yd-supervisor.php`（バージョン 0.5.0、schema クラス読込）
+- `plugin/yd-supervisor/inc/class-schema.php`（新規）
+- `plugin/yd-supervisor/inc/helpers.php`（Person / reviewedBy / Physician 構築関数を追加）
+
+### 検証項目
+
+#### A. 監修者ありの post が MedicalWebPage 化される
+
+監修者を設定した記事の URL（例 ID 145）：
+
+```bash
+curl -s "https://your-doctor.jp/media/{記事URL}/" | grep -A 200 "application/ld+json"
+```
+
+または記事ページをブラウザで開き、ソース表示で `<script type="application/ld+json">` ブロックを確認。
+
+- [ ] AIOSEO が出している JSON-LD ブロック内に `"@type":"MedicalWebPage"` が出現する
+- [ ] `"reviewedBy"` プロパティが入っている
+- [ ] `reviewedBy` 内の `@type` が `Person`、`name` が監修者名、`honorificPrefix` `jobTitle` `medicalSpecialty` `memberOf` が含まれる
+- [ ] `"lastReviewed"` に最終更新日（ISO 8601）が入っている
+- [ ] `"medicalAudience"` が `{"@type":"PeopleAudience","audienceType":"Patient"}` になっている
+- [ ] `"specialty"` に schema.org URI（例 `https://schema.org/Urologic`）が入っている
+
+#### B. Google リッチリザルトテスト
+
+https://search.google.com/test/rich-results に上記記事URLを入力。
+
+- [ ] 「**MedicalWebPage**」または「**Article**」として認識される
+- [ ] エラー 0 件、警告は許容範囲
+- [ ] reviewedBy が読み取られている
+
+> ※ MedicalWebPage 自体は Google のリッチリザルト対象ではありませんが、`Article` として表示される副次的なリッチリザルトに `reviewedBy` が反映されることが期待値です。
+
+#### C. 監修医師シングルに Physician が出力される
+
+監修医師シングルページ（`/media/doctor/{slug}/`）：
+
+```bash
+curl -s "https://your-doctor.jp/media/doctor/{slug}/" | grep -A 100 '"@type":"Physician"'
+```
+
+- [ ] `"@type":"Physician"` のグラフが追加されている
+- [ ] `name` `honorificPrefix` `jobTitle` `medicalSpecialty` `memberOf` `sameAs` `image` が含まれる
+- [ ] `@id` が `{permalink}#physician` 形式
+
+#### D. 除外フラグの動作
+
+監修者ありの記事で「医療スキーマを無効化」チェックを ON にして保存：
+
+- [ ] その記事の JSON-LD は **`Article` のまま**（MedicalWebPage 化されない）
+- [ ] `reviewedBy` も **追加されない**
+
+確認後、チェックを OFF に戻して再保存。
+
+#### E. 監修者ゼロの記事は影響を受けない
+
+監修者を設定していない通常記事：
+
+- [ ] AIOSEO 標準の `Article` のまま（MedicalWebPage 化されない）
+- [ ] yd_supervisor に起因する追加プロパティが何も入らない
+
+#### F. AIOSEO 無効時の挙動
+
+AIOSEO を一時無効化：
+
+- [ ] サイトは落ちない（プラグインの schema フィルター登録は no-op になる）
+- [ ] エラー画面・通知も出ない
+
+確認後 AIOSEO を再有効化。
+
+#### G. schema.org Validator
+
+https://validator.schema.org/ に上記記事URLと監修者URLを入力。
+
+- [ ] 致命的エラー 0
+- [ ] MedicalWebPage / Physician がそれぞれ認識される
+
+### 想定される警告と対応
+
+- **「Recommended property `reviewedBy.image` is missing」**：監修医師に顔写真を設定すれば解消
+- **「Specified value `https://schema.org/Urologic` is not a valid type for property」**：稀に Google が schema.org URI 表記を弾くことあり、要モニタリング（実害は通常なし）
+
+### Phase 5 で**確認しないもの**（Phase 6）
+
+- 記事ページに表示される監修者カード（HTML）
+- ヘッダーナビへの「Doctors」リンク
+- 子テーマ修正全般
