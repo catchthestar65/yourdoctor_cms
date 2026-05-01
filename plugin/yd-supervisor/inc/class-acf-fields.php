@@ -1,9 +1,9 @@
 <?php
 /**
- * ACF フィールドグループ定義（監修医師プロフィール）。
+ * ACF フィールドグループ定義。
  *
  * acf/init フックから呼び出すため、ACF Pro が無効な場合はノーオペとする。
- * 設計書 3.2.1 / 3.2.2 を参照。
+ * 設計書 3.2.1 / 3.2.2 / 3.2.3 を参照。
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,6 +21,7 @@ class YD_ACF_Fields {
 		}
 
 		self::register_doctor_profile_group();
+		self::register_post_supervisor_group();
 	}
 
 	/**
@@ -157,6 +158,58 @@ class YD_ACF_Fields {
 					'min'   => 1900,
 					'max'   => 2100,
 					'step'  => 1,
+				],
+			],
+		] );
+	}
+
+	/**
+	 * 記事への監修者紐付け（post 投稿タイプ用）。設計書 3.2.3。
+	 */
+	private static function register_post_supervisor_group() {
+		acf_add_local_field_group( [
+			'key'                   => 'group_yd_post_supervisor',
+			'title'                 => __( '監修医師', 'yd-supervisor' ),
+			'menu_order'            => 0,
+			'position'              => 'side',
+			'style'                 => 'default',
+			'label_placement'       => 'top',
+			'instruction_placement' => 'label',
+			'active'                => true,
+			'location'              => [
+				[
+					[
+						'param'    => 'post_type',
+						'operator' => '==',
+						'value'    => 'post',
+					],
+				],
+			],
+			'fields'                => [
+				[
+					'key'           => 'field_yd_supervisors',
+					'label'         => __( '監修医師', 'yd-supervisor' ),
+					'name'          => 'yd_supervisors',
+					'type'          => 'post_object',
+					'instructions'  => __( 'この記事を監修した医師を選択（複数可）。構造化データ reviewedBy に出力されます。', 'yd-supervisor' ),
+					'required'      => 0,
+					'post_type'     => [ YD_CPT_Doctor::POST_TYPE ],
+					'taxonomy'      => [],
+					'multiple'      => 1,
+					'allow_null'    => 1,
+					'return_format' => 'id',
+					'ui'            => 1,
+				],
+				[
+					'key'          => 'field_yd_disable_medical_schema',
+					'label'        => __( '医療スキーマを無効化', 'yd-supervisor' ),
+					'name'         => 'yd_disable_medical_schema',
+					'type'         => 'true_false',
+					'instructions' => __( 'ON にするとこの記事は MedicalWebPage 化せず、AIOSEO 標準の Article のままになります（医療外コンテンツ用）。', 'yd-supervisor' ),
+					'required'     => 0,
+					'message'      => __( 'MedicalWebPage 出力を抑制する', 'yd-supervisor' ),
+					'default_value' => 0,
+					'ui'           => 1,
 				],
 			],
 		] );
