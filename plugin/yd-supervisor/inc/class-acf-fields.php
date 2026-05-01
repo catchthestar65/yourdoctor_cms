@@ -22,6 +22,7 @@ class YD_ACF_Fields {
 
 		self::register_doctor_profile_group();
 		self::register_post_supervisor_group();
+		self::register_post_seo_group();
 	}
 
 	/**
@@ -210,6 +211,45 @@ class YD_ACF_Fields {
 					'message'      => __( 'MedicalWebPage 出力を抑制する', 'yd-supervisor' ),
 					'default_value' => 0,
 					'ui'           => 1,
+				],
+			],
+		] );
+	}
+
+	/**
+	 * SEO ターゲット情報（post 投稿タイプ用、サイドバー）。設計書 §4.2。
+	 *
+	 * フィールド名は `register_post_meta` のキーと一致させ、ACF / REST API
+	 * どちら経由でも同じデータを読み書きできるようにする。
+	 */
+	private static function register_post_seo_group() {
+		acf_add_local_field_group( [
+			'key'                   => 'group_yd_post_seo',
+			'title'                 => __( 'SEOターゲット情報', 'yd-supervisor' ),
+			'menu_order'            => 1,
+			'position'              => 'side',
+			'style'                 => 'default',
+			'label_placement'       => 'top',
+			'instruction_placement' => 'label',
+			'active'                => true,
+			'location'              => [
+				[
+					[
+						'param'    => 'post_type',
+						'operator' => '==',
+						'value'    => 'post',
+					],
+				],
+			],
+			'fields'                => [
+				[
+					'key'          => 'field_yd_target_keyword',
+					'label'        => __( '主ターゲットKW', 'yd-supervisor' ),
+					'name'         => YD_Post_Meta::META_TARGET_KEYWORD,
+					'type'         => 'text',
+					'instructions' => __( 'この記事の主ターゲットキーワード（社内 SEO 管理用）。構造化データには出力されません。', 'yd-supervisor' ),
+					'required'     => 0,
+					'maxlength'    => 200,
 				],
 			],
 		] );
