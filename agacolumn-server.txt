@@ -1,0 +1,9 @@
+# FTPアカウント
+host: sv16405.xserver.jp
+user: media@your-doctor.jp
+pwd: x//-_6an#7k!
+
+# phpmyadmin
+url: https://phpmyadmin-sv16405.xserver.jp/?
+user: zmmedia01_media
+pwd: yL3RpaW[Q/mH
